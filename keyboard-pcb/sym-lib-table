@@ -1,0 +1,4 @@
+(sym_lib_table
+  (version 7)
+  (lib (name "R1500H_vreg")(type "KiCad")(uri "${KIPRJMOD}/R1500H_vreg.kicad_sym")(options "")(descr ""))
+)
