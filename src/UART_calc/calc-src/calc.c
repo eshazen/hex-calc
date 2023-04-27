@@ -103,12 +103,20 @@ char *format_for_display( union u_reg r_format) {
 // update display from r_display
 // use radix, wsize, sign
 void calc_update_display() {
-
+#ifdef USING_XFORMS
   fl_set_object_label( fd_calc_top->reg_X, format_for_display( r_x));
   fl_set_object_label( fd_calc_top->reg_Y, format_for_display( r_y));
   fl_set_object_label( fd_calc_top->reg_Z, format_for_display( r_z));
   fl_set_object_label( fd_calc_top->reg_T, format_for_display( r_t));
-  
+#endif
+
+#ifdef USE_TTY
+  printf( "%s\n", "--------------------");
+  printf( "%s\n", format_for_display( r_t));
+  printf( "%s\n", format_for_display( r_z));
+  printf( "%s\n", format_for_display( r_y));
+  printf( "%s\n", format_for_display( r_x));
+#endif  
 }
 
 
@@ -314,3 +322,36 @@ void str_rev( char *s) {
 #endif
 }
   
+
+
+//
+// subtract the most-significant non-zero digit from v with radix
+//
+uint64_t delete_high_digit( uint64_t v, int radix)
+{
+  int nd = 0;
+  uint64_t t = v;
+  uint64_t s = 1;
+
+#ifdef DEBUG
+  printf("delete_high_digit( %" PRIu64 " (0x%" PRIx64 "), %d\n", v, v, radix);
+#endif  
+
+  if( v < (uint64_t)radix)
+    return 0;
+
+  // find highest non-zero digit by successive division
+  while( t > (uint64_t)radix && nd < 32) {
+    nd++;
+    t /= radix;
+    s *= radix;
+  }
+  v -= (s*t);
+
+#ifdef DEBUG
+  printf("  result: %" PRIu64 "( 0x%" PRIx64 ") nd=%d\n", v, v, nd);
+#endif  
+
+  return v;
+}
+

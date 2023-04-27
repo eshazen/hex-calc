@@ -199,34 +199,3 @@ void cb_stack( FL_OBJECT * ob,
 }
 
 
-//
-// subtract the most-significant non-zero digit from v with radix
-//
-uint64_t delete_high_digit( uint64_t v, int radix)
-{
-  int nd = 0;
-  uint64_t t = v;
-  uint64_t s = 1;
-
-#ifdef DEBUG
-  printf("delete_high_digit( %" PRIu64 " (0x%" PRIx64 "), %d\n", v, v, radix);
-#endif  
-
-  if( v < (uint64_t)radix)
-    return 0;
-
-  // find highest non-zero digit by successive division
-  while( t > (uint64_t)radix && nd < 32) {
-    nd++;
-    t /= radix;
-    s *= radix;
-  }
-  v -= (s*t);
-
-#ifdef DEBUG
-  printf("  result: %" PRIu64 "( 0x%" PRIx64 ") nd=%d\n", v, v, nd);
-#endif  
-
-  return v;
-}
-

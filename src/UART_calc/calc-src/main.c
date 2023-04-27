@@ -9,6 +9,7 @@
 #define CALC_TOP_MAIN
 
 #include "calc.h"
+#include "calc_key.h"
 #include "tty_helper.h"
 
 int
@@ -27,12 +28,9 @@ main( int    argc,
     while( !tty_ready())
       ;
     int c = tty_char();
-    if (iscntrl(c)) {
-      printf("%d\r\n", c);
-    } else {
-      printf("%d ('%c')\r\n", c, c);
-    }
     if (c == 3) break;
+
+    calc_key( c);
   }
 
   return 0;
