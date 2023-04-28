@@ -3,8 +3,9 @@
 //
 // keyboard mapping table
 
-// #define DEBUG
+#define DEBUG
 
+#include <stdio.h>
 #include <ctype.h>
 #include "calc.h"
 
@@ -38,7 +39,7 @@ static a_key keys[] = {
   { '=', KG_ARITH, A_CHS },	/* change sign*/
 
   { '\\', KG_STACK, S_DROP },	/* roll down */
-  { ctl('m'), KG_STACK, S_PUSH },	/* push (Enter) */
+  { 10, KG_STACK, S_PUSH },	/* push (Enter) */
   { ctl('z'), KG_STACK, S_SWAP },	/* swap x, y */
 };
 
@@ -83,7 +84,7 @@ void calc_key( char k) {
 	// it results in an overflow, and if so strip off the
 	// highest non-zero digit so the value scrolls to the left
 
-#ifdef DEBUG
+#ifdef DEBUGX
 	printf("Enter digit %d with X=%" PRIu64 "\n", data, r_x.u64);
 #endif      
 
@@ -92,7 +93,7 @@ void calc_key( char k) {
       
 	if( sign) {
 	  while( r > MAX_SIGNED(wsize)) {
-#ifdef DEBUG
+#ifdef DEBUGX
 	    printf("signed compare %" PRIu64 " with %" PRIu64 "\n", r, MAX_SIGNED(wsize));
 #endif	    
 	    b = delete_high_digit( b, radix);
@@ -101,7 +102,7 @@ void calc_key( char k) {
 	} else {
 	  // unsigned
 	  while( r > MAX_UNSIGNED(wsize)) {
-#ifdef DEBUG
+#ifdef DEBUGX
 	    printf("unsigned compare %" PRIu64 " with %" PRIu64 "\n", r, MAX_UNSIGNED(wsize));
 #endif	    
 	    b = delete_high_digit( b, radix);
@@ -150,7 +151,6 @@ void calc_key( char k) {
 	case M_8:
 	  set_new_word_size( keys[i].action_code);
 	  break;
-	default:
 	}
 	break;
 
@@ -198,8 +198,6 @@ void calc_key( char k) {
 	  break;
 	}
 	break;
-
-      default:
       }
       calc_update_display();
     }

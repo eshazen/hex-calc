@@ -15,6 +15,8 @@
 #include <util/delay.h>
 #include <avr/io.h>
 #include "uart.h"
+#include "avr_helper.h"
+
 // Arduino LED is on PB5
 #define LED_DDR DDRB
 #define LED_BIT 5
@@ -32,25 +34,13 @@ FILE usart0_str = FDEV_SETUP_STREAM(USART0SendByte, USART0ReceiveByte, _FDEV_SET
 #endif
 //-------------------------------------------------
 
-// buffer for converted values for printing
-static char sval[21];
-// the stack
-static int64_t x, y, z;
-
-// convert uint64 to string (from KamilCuk on stackoverflow)
-char *uint64_to_str(uint64_t n, char dest[21] ) {
-  dest += 20;
-  *dest-- = 0;
-  while (n) {
-    *dest-- = (n % 10) + '0';
-    n /= 10;
-  }
-  return dest + 1;
-}
 
 static int c;
 char *op;
 char *val;
+
+// the stack
+static int64_t x, y, z;
 
 int main (void)
 {

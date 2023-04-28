@@ -4,6 +4,10 @@
 #include <string.h>
 #include <ctype.h>
 
+#ifdef AVR
+#include "../avr_helper.h"
+#endif
+
 char *format_for_display( union u_reg r_format) {
   
 #ifdef DEBUG
@@ -59,9 +63,18 @@ char *format_for_display( union u_reg r_format) {
       break;
     case 64:
       if( sign)
+#ifdef AVR
+	// NOTE: this needs to be signed
+	snprintf( buff, sizeof(buff), "%s", uint64_to_str( (int64_t)r_format.u64));
+#else	
 	snprintf( buff, sizeof(buff), "%" PRId64, (int64_t)r_format.u64);
+#endif
       else
+#ifdef AVR
+	snprintf( buff, sizeof(buff), "%s", uint64_to_str( (int64_t)r_format.u64));
+#else	
 	snprintf( buff, sizeof(buff), "%" PRIu64, r_format.u64);
+#endif
       break;
     default:
       printf("ERROR!  wsize = %d\n", wsize);
@@ -83,7 +96,12 @@ char *format_for_display( union u_reg r_format) {
       snprintf( buff, sizeof(buff), "%08" PRIx32, r_format.u32);
       break;
     case 64:
+#ifdef AVR
+      snprintf( buff, sizeof(buff), "%08" PRIx32 "%08" PRIx32,
+		(uint32_t)(r_format.u64 >> 32LL), (uint32_t)(r_format.u64 & 0xffffffffLL));
+#else      
       snprintf( buff, sizeof(buff), "%016" PRIx64, r_format.u64);
+#endif
       break;
     default:
       printf("ERROR!  wsize = %d\n", wsize);
@@ -112,6 +130,15 @@ void calc_update_display() {
 #endif
 
 #ifdef USE_TTY
+  printf( "%s\n", "--------------------");
+  printf( "%s\n", format_for_display( r_t));
+  printf( "%s\n", format_for_display( r_z));
+  printf( "%s\n", format_for_display( r_y));
+  printf( "%s\n", format_for_display( r_x));
+  printf( "R=%d W=%d S=%d P=%d C=%d\n", radix, wsize, sign, push, clear);
+#endif  
+
+#ifdef AVR
   printf( "%s\n", "--------------------");
   printf( "%s\n", format_for_display( r_t));
   printf( "%s\n", format_for_display( r_z));
