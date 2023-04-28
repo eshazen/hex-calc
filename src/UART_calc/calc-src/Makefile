@@ -1,7 +1,7 @@
 all: calc
 
 # include needed for OS-X
-CFLAGS = -I/usr/X11/include -DUSE_TTY
+CFLAGS = -I/usr/X11/include -DUSE_TTY -DAVR8
 
 #CFLAGS = -DDEBUG
 

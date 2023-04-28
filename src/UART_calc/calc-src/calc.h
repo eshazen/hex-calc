@@ -1,4 +1,4 @@
-#include "calc_top.h"
+// #include "calc_top.h"
 
 #include <stdint.h>
 
@@ -51,7 +51,6 @@ union u_reg {
 #endif
 
 // global variables
-alloc FD_calc_top *fd_calc_top;  // <ESH> GUI pointer
 
 alloc union u_reg r_stack[STACK_SIZE]; /* data stack */
 alloc union u_reg r_temp;	       /* temporary reg */

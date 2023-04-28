@@ -1,4 +1,5 @@
 #include "calc.h"
+#include <stdio.h>
 #include <inttypes.h>
 #include <string.h>
 #include <ctype.h>
@@ -116,7 +117,10 @@ void calc_update_display() {
   printf( "%s\n", format_for_display( r_z));
   printf( "%s\n", format_for_display( r_y));
   printf( "%s\n", format_for_display( r_x));
+  printf( "R=%d W=%d S=%d P=%d C=%d\n", radix, wsize, sign, push, clear);
 #endif  
+
+
 }
 
 
