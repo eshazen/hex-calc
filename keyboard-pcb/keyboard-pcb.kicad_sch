@@ -3869,7 +3869,7 @@
     (property "Datasheet" "https://www.keyelco.com/userAssets/file/M65p28.pdf" (at 204.47 63.246 90)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (property "CatNo" "36-2481-ND" (at 195.58 68.58 0)
+    (property "CatNo" "BC4AAAPC-ND" (at 195.58 68.58 0)
       (effects (font (size 1.27 1.27)))
     )
     (pin "1" (uuid 93f68e09-fec0-4924-9528-9abcb405c4dd))
