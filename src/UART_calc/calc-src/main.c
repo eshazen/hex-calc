@@ -26,7 +26,7 @@ FILE usart0_str = FDEV_SETUP_STREAM(USART0SendByte, USART0ReceiveByte, _FDEV_SET
 
 #else
 
-#include "calc-src/tty_helper.h"
+#include "tty_helper.h"
 
 #endif
 //-------------------------------------------------

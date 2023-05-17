@@ -42,7 +42,7 @@ headers = uart.h
 all: $(objects)  main.hex list
 
 clean:
-	rm -f *.o *~ *.hex *.elf *.map *.lst
+	rm -f *.o *~ *.hex *.elf *.map *.lst calc-src/*.o
 
 flash: main.hex
 	$(AVRDUDE) -U flash:w:$^:i

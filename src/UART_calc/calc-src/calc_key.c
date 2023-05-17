@@ -3,7 +3,7 @@
 //
 // keyboard mapping table
 
-#define DEBUG
+// #define DEBUG
 
 #include <stdio.h>
 #include <ctype.h>

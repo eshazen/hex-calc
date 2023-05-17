@@ -57,6 +57,9 @@ alloc union u_reg r_temp;	       /* temporary reg */
 alloc int radix;		       /* current radix */
 alloc int wsize;		       /* current word size 8/16/32/64 */
 alloc int sign;			       /* signed (1) or unsigned (0) */
+alloc int dwidth;		       /* display width 16, 20 or larger */
+alloc int drows;		       /* display rows 2, 4 or larger */
+alloc int doffset;		       /* horizontal display scroll offset */
 alloc int push;			       /* (1) means push on next digit */
 alloc int clear;		       /* (1) means clear on next digit */
 

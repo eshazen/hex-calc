@@ -8,6 +8,11 @@
 #include "../avr_helper.h"
 #endif
 
+//
+// format register for display, taking into account
+//   wsize( 8/16/32/64), radix (2/10/16) and sign (0/1)
+//   dwidth, drows, doffset
+//
 char *format_for_display( union u_reg r_format) {
   
 #ifdef DEBUG
@@ -160,6 +165,7 @@ char *sp_byt( char *s, uint8_t v) {
   return s;
 }
 
+// print binary value of nb bytes with dot separator
 void sp_bin( char *s, int nb, uint64_t v) {
   char *p = s;
   uint8_t b;
