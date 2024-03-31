@@ -1351,6 +1351,10 @@
     (stroke (width 0) (type default))
     (uuid 3a908f57-3046-409f-8fda-6942510df0cd)
   )
+  (wire (pts (xy 240.03 54.61) (xy 246.38 54.61))
+    (stroke (width 0) (type default))
+    (uuid 3be061f4-163e-4b20-9a0a-ea5e43508923)
+  )
   (wire (pts (xy 115.57 83.82) (xy 115.57 96.52))
     (stroke (width 0) (type default))
     (uuid 3ef6d735-f080-4870-8ee9-67e973df4e24)
@@ -1666,10 +1670,6 @@
   (wire (pts (xy 158.75 121.92) (xy 158.75 134.62))
     (stroke (width 0) (type default))
     (uuid 8d8c0ea6-3b25-45ca-a33d-ce3a28ea9639)
-  )
-  (wire (pts (xy 240.03 54.61) (xy 246.38 54.61))
-    (stroke (width 0) (type default))
-    (uuid 8e5eb59d-e520-4d8d-ba24-70fe47370a16)
   )
   (wire (pts (xy 137.16 71.12) (xy 137.16 83.82))
     (stroke (width 0) (type default))
@@ -2092,7 +2092,7 @@
   (symbol (lib_id "Display_Character:RC1602A") (at 49.53 165.1 0) (mirror y) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 04ddd4e4-5c9a-400c-a772-7b682f21cb1e)
-    (property "Reference" "U3" (at 47.5741 146.05 0)
+    (property "Reference" "U4" (at 47.5741 146.05 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "RC1602A" (at 47.5741 148.59 0)
@@ -2123,7 +2123,7 @@
     (instances
       (project "keyboard-pcb"
         (path "/1f3a3fa9-d994-4670-aaa6-06c93cb2d887"
-          (reference "U3") (unit 1)
+          (reference "U4") (unit 1)
         )
       )
     )
@@ -2158,7 +2158,7 @@
   (symbol (lib_id "MCU_Microchip_ATmega:ATmega328-P") (at 45.72 67.31 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 12da38ac-73a8-4a7c-b806-84921b0125c6)
-    (property "Reference" "U2" (at 36.83 64.77 0)
+    (property "Reference" "U3" (at 36.83 64.77 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "ATmega328-P" (at 41.91 67.31 0)
@@ -2201,7 +2201,7 @@
     (instances
       (project "keyboard-pcb"
         (path "/1f3a3fa9-d994-4670-aaa6-06c93cb2d887"
-          (reference "U2") (unit 1)
+          (reference "U3") (unit 1)
         )
       )
     )
@@ -2320,7 +2320,7 @@
   (symbol (lib_id "power:VCC") (at 246.38 48.26 0) (mirror y) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 4439afb3-e68f-481c-9475-608c5606dc77)
-    (property "Reference" "#PWR04" (at 246.38 52.07 0)
+    (property "Reference" "#PWR05" (at 246.38 52.07 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "VCC" (at 242.57 46.99 0)
@@ -2336,7 +2336,7 @@
     (instances
       (project "keyboard-pcb"
         (path "/1f3a3fa9-d994-4670-aaa6-06c93cb2d887"
-          (reference "#PWR04") (unit 1)
+          (reference "#PWR05") (unit 1)
         )
       )
     )
@@ -2601,7 +2601,7 @@
   (symbol (lib_id "power:VCC") (at 49.53 143.51 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 550b398c-3d6f-4b5b-8b86-9a40b16b9883)
-    (property "Reference" "#PWR07" (at 49.53 147.32 0)
+    (property "Reference" "#PWR08" (at 49.53 147.32 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "VCC" (at 49.53 139.7 0)
@@ -2617,7 +2617,7 @@
     (instances
       (project "keyboard-pcb"
         (path "/1f3a3fa9-d994-4670-aaa6-06c93cb2d887"
-          (reference "#PWR07") (unit 1)
+          (reference "#PWR08") (unit 1)
         )
       )
     )
@@ -2820,7 +2820,7 @@
   (symbol (lib_id "R1500H_vreg:R1500H") (at 231.14 55.88 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 628f0b62-0801-4627-b09c-082533d93f58)
-    (property "Reference" "U1" (at 226.06 50.8 0)
+    (property "Reference" "U2" (at 226.06 50.8 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "R1500H" (at 236.22 50.8 0)
@@ -2843,7 +2843,7 @@
     (instances
       (project "keyboard-pcb"
         (path "/1f3a3fa9-d994-4670-aaa6-06c93cb2d887"
-          (reference "U1") (unit 1)
+          (reference "U2") (unit 1)
         )
       )
     )
@@ -2852,7 +2852,7 @@
   (symbol (lib_id "power:GND") (at 204.47 73.66 0) (mirror y) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 65d46b05-c811-4f12-bcdc-1ae0141b5ca7)
-    (property "Reference" "#PWR05" (at 204.47 80.01 0)
+    (property "Reference" "#PWR06" (at 204.47 80.01 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "GND" (at 204.47 77.47 0)
@@ -2868,7 +2868,7 @@
     (instances
       (project "keyboard-pcb"
         (path "/1f3a3fa9-d994-4670-aaa6-06c93cb2d887"
-          (reference "#PWR05") (unit 1)
+          (reference "#PWR06") (unit 1)
         )
       )
     )
@@ -3341,7 +3341,7 @@
   (symbol (lib_id "power:GND") (at 45.72 107.95 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 91b45581-1f2a-42ea-9f9b-a675e10375f4)
-    (property "Reference" "#PWR06" (at 45.72 114.3 0)
+    (property "Reference" "#PWR07" (at 45.72 114.3 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "GND" (at 45.72 113.03 0)
@@ -3357,7 +3357,7 @@
     (instances
       (project "keyboard-pcb"
         (path "/1f3a3fa9-d994-4670-aaa6-06c93cb2d887"
-          (reference "#PWR06") (unit 1)
+          (reference "#PWR07") (unit 1)
         )
       )
     )
@@ -3489,7 +3489,7 @@
   (symbol (lib_id "power:VCC") (at 118.11 161.29 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 9d1f2e27-1c65-4064-a150-be64ba342bc0)
-    (property "Reference" "#PWR09" (at 118.11 165.1 0)
+    (property "Reference" "#PWR010" (at 118.11 165.1 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "VCC" (at 118.11 157.48 0)
@@ -3505,7 +3505,7 @@
     (instances
       (project "keyboard-pcb"
         (path "/1f3a3fa9-d994-4670-aaa6-06c93cb2d887"
-          (reference "#PWR09") (unit 1)
+          (reference "#PWR010") (unit 1)
         )
       )
     )
@@ -3636,7 +3636,7 @@
   (symbol (lib_id "power:GND") (at 49.53 184.15 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid a852be0b-7d58-409d-913b-ad8d33dc39cb)
-    (property "Reference" "#PWR011" (at 49.53 190.5 0)
+    (property "Reference" "#PWR012" (at 49.53 190.5 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "GND" (at 49.53 189.23 0)
@@ -3652,7 +3652,7 @@
     (instances
       (project "keyboard-pcb"
         (path "/1f3a3fa9-d994-4670-aaa6-06c93cb2d887"
-          (reference "#PWR011") (unit 1)
+          (reference "#PWR012") (unit 1)
         )
       )
     )
@@ -3687,7 +3687,7 @@
   (symbol (lib_id "power:VCC") (at 85.09 153.67 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid ac3f6ccd-edd3-481f-8e78-62ea9d17bdca)
-    (property "Reference" "#PWR08" (at 85.09 157.48 0)
+    (property "Reference" "#PWR09" (at 85.09 157.48 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "VCC" (at 85.09 149.86 0)
@@ -3703,7 +3703,7 @@
     (instances
       (project "keyboard-pcb"
         (path "/1f3a3fa9-d994-4670-aaa6-06c93cb2d887"
-          (reference "#PWR08") (unit 1)
+          (reference "#PWR09") (unit 1)
         )
       )
     )
@@ -4407,7 +4407,7 @@
   (symbol (lib_id "power:GND") (at 118.11 172.72 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid fd78d2f6-2061-46aa-b293-201884a99d7e)
-    (property "Reference" "#PWR010" (at 118.11 179.07 0)
+    (property "Reference" "#PWR011" (at 118.11 179.07 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "GND" (at 118.11 177.8 0)
@@ -4423,7 +4423,7 @@
     (instances
       (project "keyboard-pcb"
         (path "/1f3a3fa9-d994-4670-aaa6-06c93cb2d887"
-          (reference "#PWR010") (unit 1)
+          (reference "#PWR011") (unit 1)
         )
       )
     )

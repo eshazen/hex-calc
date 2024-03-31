@@ -5,7 +5,8 @@
 # the hardware using a programming cable, or Arduino bootloader.
 #
 
-MCU = atmega328
+# MCU = atmega328
+MCU = atmega168
 
 # 8 MHz for on-board oscillator
 # F_OSC = 8000000
