@@ -1,5 +1,8 @@
 /*
  * calculator hardware test
+ *
+ * display test message for 2 seconds on LCD
+ * scan keyboard and display scan codes as buttons hit
  */
 
 #include <stdio.h>
@@ -14,6 +17,9 @@
 static char msg[17];
 
 extern uint8_t kb_val[];
+extern uint8_t kb_diff[];
+extern uint8_t kb_hits[];
+extern uint16_t kb_test_hit;
 
 int main (void)
 {
@@ -40,9 +46,9 @@ int main (void)
     // poll KB every 8 ms
     if( !(ms & 7)) {
       poll_kb();
-
-      // check/update display every 64 ms
-      if( !(ms & 63)) {
+      
+      // check/update display every 256 ms
+      if( !(ms & 255)) {
 
 	int k = get_kb();
       
@@ -68,17 +74,10 @@ int main (void)
 	  } // switch()
 	} // if(k)
 
-      } // 63 ms
+      } // 255 ms
 
-      // every 256 ms
-      if( !(ms & 255)) {
-	lcd_addr( 40);
-	snprintf( msg, sizeof(msg), "%02x %02x %02x %02x",
-		  kb_val[0], kb_val[1], kb_val[2], kb_val[3]);
-	lcd_puts( msg);
-      }
 
-    } // 7 ms
+    }
 
   }
 

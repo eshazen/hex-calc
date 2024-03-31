@@ -1,3 +1,14 @@
+//
+// keyboard scanning
+//
+// kb_init() once to setup ports
+// poll_kb() periodically to scan (8ms works well)
+//   recognized hits are pushed into circular buffer
+// get_kb() returns 0 or next hit code from buffer
+//
+// hit code:  row# 1-7 in low 4 bits
+//            col# 0-3 in upper 4 bits
+//
 
 #include <avr/io.h>
 #include <stdint.h>
@@ -8,6 +19,8 @@
 
 #include "led.h"
 #include "kb.h"
+
+uint8_t kb_val[ NUM_KB_COL];	/* last scanned values */
 
 //
 // initialize KB ports
@@ -53,7 +66,7 @@ void set_kb_col( uint8_t c) {
 }
 
 // keyboard type-ahead buffer size, must be power of 2
-#define KB_BUFFSIZ 8
+#define KB_BUFFSIZ 4
 
 static uint8_t kb_buff[KB_BUFFSIZ];
 volatile uint8_t kb_head, kb_tail;
@@ -82,12 +95,10 @@ uint8_t get_kb() {
 
 void poll_kb() {
   uint8_t k = scan_kb();
-  if( k & !kb_full())
+  if( k && !kb_full()) {
     _push_kb( k);
+  }
 }
-
-uint8_t kb_val[ NUM_KB_COL];
-
 
 // scan keyboard for hits
 // zero if no hits, else an integer code
@@ -101,17 +112,17 @@ uint8_t scan_kb() {
 
   kb_rc = 0;
 
-  for( uint8_t c=0; c<NUM_KB_COL; c++) { /* loop over KB columns */
+  for( uint8_t c=0; c<NUM_KB_COL; c++) { /* loop over (4) KB columns */
 
     set_kb_col( c);		/* assert one column */
     kb_v = read_kb();		/* read 7-bit row value */
     kb_d = kb_val[c] ^ kb_v;	/* any changes? */
-
     if( kb_d) {			/* yes */
       kb_code = 1;
       for( uint8_t b=1; b<0x80; b<<=1) { /* see which bit changed */
 	if( (kb_d & b) && (kb_v & b)) {	 /* only press, no release */
-	  kb_rc = kb_code + (c << 4); /* merge to make 8-bit code */
+	  kb_rc = (c << 4) | kb_code;
+	  //	  kb_test_hit = (c << 4) | kb_code;
 	}
 	++kb_code;
       }
