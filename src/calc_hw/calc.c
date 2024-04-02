@@ -46,7 +46,7 @@ char *format_for_display( union u_reg r_format) {
     }
     break;
 
-  // decimal: format using snpring, insert commas after
+  // decimal: format using snprintf, insert commas after
   case 10:
     switch( wsize) {
     case 8:
@@ -112,7 +112,9 @@ char *format_for_display( union u_reg r_format) {
     default:
       printf("ERROR!  wsize = %d\n", wsize);
     }
+#ifndef AVR
     rfmt = insert_every( buff, 4, '.');
+#endif
     break;
 
 

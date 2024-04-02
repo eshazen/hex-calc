@@ -58,6 +58,7 @@ int main (void)
 
 	// set LEDs
 	set_led( 0, shift);
+	set_led( 1, sign);
 
       } // 255 ms
 

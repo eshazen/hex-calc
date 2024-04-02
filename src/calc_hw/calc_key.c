@@ -9,9 +9,12 @@
 #include <ctype.h>
 #include <stdint.h>
 #include "calc.h"
+#include "lcd.h"
+
+extern char msg[17];
 
 typedef struct {
-  char key;
+  unsigned char key;
   int action_group;
   int action_code;
 } a_key;
@@ -67,10 +70,14 @@ void calc_key( char k) {
   printf("calc_key( 0x%x)\n", k);
 #endif  
 
-  if( k == 0x31)		/* shift (f) key */
+  if( k == 0x31) {		/* shift (f) key */
     shift = 1;
+    return;
+  }
 
   if( calc_xdigit( k)) {
+    shift = 0;			/* digit cancels shift */
+
     k = calc_xdigit( k);
 
     int data;
@@ -143,6 +150,11 @@ void calc_key( char k) {
     if( shift ? (keys[i].key == (k | 0x80)) : (keys[i].key == k)) {
 
       shift = 0;
+      push = 1;
+
+      lcd_addr( 40);
+      snprintf( msg, sizeof(msg), "key %d %02x %02x", i, k, keys[i].key);
+      lcd_puts( msg);
 
 #ifdef DEBUG
       printf("  match group=%d code=%d\n", keys[i].action_group, keys[i].action_code);
