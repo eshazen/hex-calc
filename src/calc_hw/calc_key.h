@@ -1,2 +1,2 @@
 
-void calc_key( char k);
+void calc_key( unsigned char k);

@@ -11,20 +11,22 @@
 #include "calc.h"
 #include "lcd.h"
 
+// #define STATUS_KEY
+
 extern char msg[17];
 
 typedef struct {
-  unsigned char key;
+  uint8_t key;
   int action_group;
   int action_code;
 } a_key;
 
 // key codes for the 16 hex digits
-static char xdigits[] = { 0x17, 0x16, 0x26, 0x36, 0x15, 0x25, 0x35,
+static uint8_t xdigits[] = { 0x17, 0x16, 0x26, 0x36, 0x15, 0x25, 0x35,
   0x14, 0x24, 0x34, 0x13, 0x23, 0x33, 0x12, 0x22, 0x32 };
 
 // convert key code to hex digit or 0 if it isn't
-char calc_xdigit( char k) {
+uint8_t calc_xdigit( uint8_t k) {
   for( uint8_t i=0; i<sizeof(xdigits); i++) {
     if( k == xdigits[i]) {
       if( i < 10)
@@ -60,11 +62,11 @@ static a_key keys[] = {
   { 0x03, KG_ARITH, A_CHS },	/* change sign*/
 
   { 0x92, KG_STACK, S_DROP },	/* roll down */
-  { 0x27, KG_STACK, S_PUSH },	/* push (Enter) */
   { 0xa2, KG_STACK, S_SWAP },	/* swap x, y */
+  { 0x27, KG_STACK, S_PUSH },	/* push (Enter) */
 };
 
-void calc_key( char k) {
+void calc_key( uint8_t k) {
 
 #ifdef DEBUG
   printf("calc_key( 0x%x)\n", k);
@@ -75,7 +77,7 @@ void calc_key( char k) {
     return;
   }
 
-  if( calc_xdigit( k)) {
+  if( !shift && calc_xdigit( k)) {
     shift = 0;			/* digit cancels shift */
 
     k = calc_xdigit( k);
@@ -152,9 +154,11 @@ void calc_key( char k) {
       shift = 0;
       push = 1;
 
+#ifdef STATUS_KEY
       lcd_addr( 40);
       snprintf( msg, sizeof(msg), "key %d %02x %02x", i, k, keys[i].key);
       lcd_puts( msg);
+#endif
 
 #ifdef DEBUG
       printf("  match group=%d code=%d\n", keys[i].action_group, keys[i].action_code);
@@ -166,7 +170,7 @@ void calc_key( char k) {
 
 	  // toggle signed mode
 	case M_SIG:
-	  sign ^= 1;
+	  sign = !sign;
 	  break;
 
 	  // set the radix

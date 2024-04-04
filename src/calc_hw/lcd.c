@@ -31,36 +31,50 @@ void lcd_init( void)
 {
   io_init();
   _delay_ms(15);
-  send_nibble( 0, 0b0010);
+  send_ctrl( 0b0010);
   _delay_ms(5);
 
-  send_nibble(0,0b0010);   //Function set, 4 bit
-  send_nibble(0,0b1000);
+  send_ctrl(0b0010);   //Function set, 4 bit
+  send_ctrl(0b1000);
  
-  send_nibble(0,0b0000);   //Display ON, Cursor On, Cursor Blinking
-  send_nibble(0,0b1111);
+  send_ctrl(0b0000);   //Display ON, Cursor On, Cursor Blinking
+  send_ctrl(0b1111);
 
-  send_nibble(0,0b0000);   //Clear Display
-  send_nibble(0,0b0001);
+  send_ctrl(0b0000);   //Clear Display
+  send_ctrl(0b0001);
  
-  send_nibble(0,0b0000);  //Entry Mode, Increment cursor position, No display shift
-  send_nibble(0,0b0110);
+  send_ctrl(0b0000);  //Entry Mode, Increment cursor position, No display shift
+  send_ctrl(0b0110);
 }
 
 void lcd_cls( void)
 {
-  send_nibble(0,0b0000);   //Clear Display
-  send_nibble(0,0b0001);
+  send_ctrl(0b0000);   //Clear Display
+  send_ctrl(0b0001);
 
   lcd_addr( 0);
 }
  
-void lcd_putc( char c) {
+
+
+// unadjusted putc
+void lcd_putch( char c) {
   volatile unsigned char z;	/* why? */
   z = (c >> 4) & 0xf;
-  send_nibble( 1, z);
+  send_data(z);
   z = c & 0xf;
-  send_nibble( 1, z);
+  send_data(z);
+}
+
+// putc to adjust low codes
+void lcd_putc( char c) {
+  volatile unsigned char z;	/* why? */
+  if( c < 20)			/* adjust for codes 1-8 -> 0-7 */
+    c--;
+  z = (c >> 4) & 0xf;
+  send_data(z);
+  z = c & 0xf;
+  send_data(z);
 }
 
 // set address.  0=home 
@@ -68,9 +82,9 @@ void lcd_addr( uint8_t addr)
 {
   volatile uint8_t z;
   z = ((addr >> 4) & 7) | 8;
-  send_nibble( 0, z);
+  send_ctrl( z);
   z = addr & 0xf;
-  send_nibble( 0, z);
+  send_ctrl( z);
 }
 
 void lcd_puts( char *str) {
@@ -88,14 +102,24 @@ void io_init( void)
   LCD_CTRL_DDR |= _BV( LCD_EN_BIT) | _BV( LCD_RS_BIT);
 } 
 
-
-void send_nibble( unsigned char __rs, unsigned char __data)
-{
+void send_ctrl( unsigned char __data) {
   LCD_DATA_PORT = (__data << LCD_DATA_D0_BIT); /* assert data */
-  LCD_CTRL_PORT = (__rs << LCD_RS_BIT) | _BV(LCD_EN_BIT); /* set RS=H & EN=H */
+  // set RS=L & EN=H
+  LCD_CTRL_PORT &= ~ _BV(LCD_RS_BIT);
+  LCD_CTRL_PORT |= _BV(LCD_EN_BIT);
   _delay_ms(1);
-  LCD_CTRL_PORT = (__rs << LCD_RS_BIT); /* set RS=H and EN=L */
+  // set EN=L
+  LCD_CTRL_PORT &= ~ _BV(LCD_EN_BIT);
   _delay_ms(1);
 }
 
+void send_data( unsigned char __data) {
+  LCD_DATA_PORT = (__data << LCD_DATA_D0_BIT); /* assert data */
+  // set RS=H & EN=H
+  LCD_CTRL_PORT |= _BV(LCD_EN_BIT) | _BV(LCD_RS_BIT);
+  _delay_ms(1);
+  // set EN=L
+  LCD_CTRL_PORT &= ~ _BV(LCD_EN_BIT);
+  _delay_ms(1);
+}
 

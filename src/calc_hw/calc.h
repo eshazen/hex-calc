@@ -93,4 +93,4 @@ uint64_t mask_bits( uint64_t, int siz);
 char *insert_every( char *str, int n, char c);
 void str_rev( char *s);
 uint64_t delete_high_digit( uint64_t v, int r);
-
+void reverse_every( char *str, int n);
