@@ -12,6 +12,7 @@
 #include "led.h"
 #include "calc.h"
 #include "calc_key.h"
+#include "custom.h"
 
 // universal LCD display buffer
 char msg[17];
@@ -24,14 +25,21 @@ int main (void)
   led_init();
   kb_init();
 
+  load_custom_char();
+
   timer_setup();
   sei();			/* enable interrups */
 
   lcd_puts( "Hex calc V0.1");
   lcd_addr( 40);
-  lcd_puts( "UPCO Graphics");
+  for( uint8_t i=1; i<=8; i++)
+    lcd_putc( i);
+  
 
-  _delay_ms( 2000);
+  _delay_ms( 100);
+
+  while( !scan_kb())
+    ;
   lcd_cls();
 
   // set some defaults
@@ -58,6 +66,7 @@ int main (void)
 
 	// set LEDs
 	set_led( 0, shift);
+	set_led( 1, sign);
 
       } // 255 ms
 

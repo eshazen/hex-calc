@@ -31,9 +31,9 @@ DUDEPORT  = -c avrispv2 -P usb
 DUDEMCU = m328
 AVRDUDE  = avrdude $(DUDEPORT) -p $(DUDEMCU) -y -u 
 
-objects = main.o lcd.o kb.o timer.o led.o calc.o calc_key.o avr_helper.o
+objects = main.o lcd.o kb.o timer.o led.o calc.o calc_key.o avr_helper.o custom.o
 
-headers = lcd.h kb.h timer.h led.h calc.h calc_key.h avr_helper.h
+headers = lcd.h kb.h timer.h led.h calc.h calc_key.h avr_helper.h custom.h
 
 all: $(objects)  main.hex list
 

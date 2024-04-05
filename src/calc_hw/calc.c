@@ -7,12 +7,13 @@
 #include "avr_helper.h"
 #include "lcd.h"
 
+// #define STATUS_LINE
+
 extern char msg[17];
 
 //
 // format register for display, taking into account
 //   wsize( 8/16/32/64), radix (2/10/16) and sign (0/1)
-//   dwidth, drows, doffset
 //
 char *format_for_display( union u_reg r_format) {
   
@@ -44,9 +45,13 @@ char *format_for_display( union u_reg r_format) {
     default:
       printf("ERROR!  wsize = %d\n", wsize);
     }
+
+    if( wsize > 8)
+      reverse_every( buff, 8);
+
     break;
 
-  // decimal: format using snpring, insert commas after
+  // decimal: format using snprintf, insert commas after
   case 10:
     switch( wsize) {
     case 8:
@@ -112,7 +117,8 @@ char *format_for_display( union u_reg r_format) {
     default:
       printf("ERROR!  wsize = %d\n", wsize);
     }
-    rfmt = insert_every( buff, 4, '.');
+    if( wsize < 64)
+      reverse_every( buff, 4);
     break;
 
 
@@ -130,20 +136,32 @@ char *format_for_display( union u_reg r_format) {
 void calc_update_display() {
   lcd_cls();
   // X on top line
-  snprintf( msg, sizeof(msg), "%s", format_for_display( r_x));
-  lcd_puts( msg);
+  char *fmt = format_for_display( r_x);
+  if( strlen( fmt) < 16) {
+    snprintf( msg, sizeof(msg), "%s", fmt);
+    lcd_puts( msg);
+  } else {
+    snprintf( msg, sizeof(msg), "%16s", fmt);
+    lcd_puts( msg);
+    // wrap to bottom line
+    snprintf( msg, sizeof(msg), "%s", fmt+16);
+    lcd_addr(40);
+    lcd_puts( msg);
+  }
   // status on bottom line
+#ifdef STATUS_LINE
   lcd_addr( 40);
   snprintf( msg, sizeof(msg), "%d %d", radix, wsize);
   lcd_puts( msg);
+#endif
 }
 
 
 // binary print byte
 char *sp_byt( char *s, uint8_t v) {
-  for( int i=0, b=0x80; 
-       i++, b>>=1; 
-       i<8)
+  for( int i=0, b=0x80;
+       i<8;
+       i++, b>>=1)
     *s++ = ((v & b) ? '1' : '0');
   return s;
 }
@@ -156,10 +174,10 @@ void sp_bin( char *s, int nb, uint64_t v) {
   // loop over nb bytes
   for( int i=0; i<nb; i++) {
     // extract byte to print
-    b = (v >> 8*(nb-i-1));
+    b = (v >> 8*(nb-i-1LL));
     p = sp_byt( p, b);
-    if( i != nb-1)
-      *p++ = '.';
+    //    if( i != nb-1)
+    //      *p++ = '.';
   }
   *p++ = '\0';
 }
@@ -280,6 +298,21 @@ uint64_t mask_bits( uint64_t v, int siz) {
   return r;
 }
 
+
+// invert (reverse) characters every n characters
+// char codes 1-8 are 01ABCDEF
+void reverse_every( char *str, int n) {
+  for( size_t i=0; i<strlen(str); i++) {
+    unsigned char c = toupper(*str);
+    if( i%n == 0) {
+      if( c == '0' || c == '1')	/* convert '0' to 0x1, '1' to 0x2 */
+	c = c - '0' + 1;
+      else if( c >= 'A' && c <= 'F') /* convert 'A' to 3 etc */
+	c = c - 'A' + 3;
+    }
+    *str++ = c;
+  }
+}
 
 // start at end of string, insert c every n characters
 // return pointer to static (modified) copy
