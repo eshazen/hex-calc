@@ -134,26 +134,80 @@ char *format_for_display( union u_reg r_format) {
 // update display from r_display
 // use radix, wsize, sign
 void calc_update_display() {
+  char *fmt;
   lcd_cls();
-  // X on top line
-  char *fmt = format_for_display( r_x);
-  if( strlen( fmt) < 16) {
-    snprintf( msg, sizeof(msg), "%s", fmt);
-    lcd_puts( msg);
-  } else {
-    snprintf( msg, sizeof(msg), "%16s", fmt);
-    lcd_puts( msg);
-    // wrap to bottom line
-    snprintf( msg, sizeof(msg), "%s", fmt+16);
-    lcd_addr(40);
-    lcd_puts( msg);
-  }
-  // status on bottom line
+
+  // various formats based on size / base
+  switch( radix) {
+  case 16:
+
+    switch( wsize) {
+    case 8:
+    case 16:
+      // display X/Y/Z/T
+      fmt = format_for_display( r_t);
+      snprintf( msg, sizeof(msg), "T:%s", fmt);
+      lcd_puts( msg);
+
+      fmt = format_for_display( r_z);
+      snprintf( msg, sizeof(msg), "Z:%s", fmt);
+      lcd_addr( 8);
+      lcd_puts( msg);
+
+      fmt = format_for_display( r_y);
+      lcd_addr( 0x40);
+      snprintf( msg, sizeof(msg), "Y:%s", fmt);
+      lcd_puts( msg);
+
+      fmt = format_for_display( r_x);
+      lcd_addr( 0x48);
+      snprintf( msg, sizeof(msg), "X:%s", fmt);
+      lcd_puts( msg);
+      break;
+
+    case 32:
+      fmt = format_for_display( r_y);
+      lcd_puts( fmt);
+      lcd_addr( 0x40);
+      fmt = format_for_display( r_x);
+      lcd_puts( fmt);
+      break;
+
+    case 64:
+      fmt = format_for_display( r_x);
+      snprintf( msg, sizeof(msg), "%16s", fmt);
+      lcd_puts( msg);
+      // wrap to bottom line
+      snprintf( msg, sizeof(msg), "%s", fmt+16);
+      lcd_addr(0x40);
+      lcd_puts( msg);
+      break;
+    }
+    break;
+    
+    default:
+      
+      // X on top line
+      fmt = format_for_display( r_x);
+      if( strlen( fmt) < 16) {
+	snprintf( msg, sizeof(msg), "%s", fmt);
+	lcd_puts( msg);
+      } else {
+	snprintf( msg, sizeof(msg), "%16s", fmt);
+	lcd_puts( msg);
+	// wrap to bottom line
+	snprintf( msg, sizeof(msg), "%s", fmt+16);
+	lcd_addr(0x40);
+	lcd_puts( msg);
+      }
+      // status on bottom line
 #ifdef STATUS_LINE
-  lcd_addr( 40);
-  snprintf( msg, sizeof(msg), "%d %d", radix, wsize);
-  lcd_puts( msg);
+      lcd_addr( 0x40);
+      snprintf( msg, sizeof(msg), "%d %d", radix, wsize);
+      lcd_puts( msg);
 #endif
+  }
+  
 }
 
 

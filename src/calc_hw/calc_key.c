@@ -52,7 +52,7 @@ static a_key keys[] = {
   { 0x81, KG_MODE, M_64 },	/* set 64-bit word size (Octobyte) */
   { 0x91, KG_MODE, M_32 },	/* set 32-bit word size (Quad byte) */
   { 0xa1, KG_MODE, M_16 },	/* set 16-bit word size (Word) */
-  { 0xb1, KG_MODE, M_8 },	/* set 8-bit word size (Byte) */
+  { 0x82, KG_MODE, M_8 },	/* set 8-bit word size (Byte) */
 
   { 0x02, KG_ARITH, A_CLR },	/* Clear x */
   { 0x04, KG_ARITH, A_SUB },	/* subtract */
@@ -72,11 +72,10 @@ void calc_key( uint8_t k) {
   printf("calc_key( 0x%x)\n", k);
 #endif  
 
-  if( k == 0x31) {		/* shift (f) key */
-    shift = 1;
-    return;
-  }
+  if(k == 0x31)
+    shift = !shift;
 
+  // un-shifted digit
   if( !shift && calc_xdigit( k)) {
     shift = 0;			/* digit cancels shift */
 
@@ -146,13 +145,12 @@ void calc_key( uint8_t k) {
 
     calc_update_display();
 
-  } // if( calc_xdigit())
+  } // if( !shift && calc_xdigit())
 
   for( int i=0; i<sizeof(keys)/sizeof(keys[0]); i++) {
     if( shift ? (keys[i].key == (k | 0x80)) : (keys[i].key == k)) {
 
       shift = 0;
-      push = 1;
 
 #ifdef STATUS_KEY
       lcd_addr( 40);
@@ -166,8 +164,9 @@ void calc_key( uint8_t k) {
 
       switch( keys[i].action_group) {
       case KG_MODE:
-	switch( keys[i].action_code) {
+	push = 1;
 
+	switch( keys[i].action_code) {
 	  // toggle signed mode
 	case M_SIG:
 	  sign = !sign;
@@ -196,12 +195,15 @@ void calc_key( uint8_t k) {
 
       case KG_ARITH:
 
+	push = 1;
+
 	switch( keys[i].action_code) {
 	case A_CHS:
 	  r_x.u64 = -((int64_t)r_x.u64);
 	  break;
 	case A_CLR:
 	  r_x.u64 = 0;
+	  push = 0;
 	  break;
 	case A_SUB:
 	  r_y.u64 -= r_x.u64;
@@ -223,6 +225,7 @@ void calc_key( uint8_t k) {
 	break;
 
       case KG_STACK:
+	push = 1;
 	switch( keys[i].action_code) {
 	case S_DROP:			/* roll-down */
 	  stack_down();
@@ -230,6 +233,7 @@ void calc_key( uint8_t k) {
 	case S_PUSH:			/* ENTER */
 	  stack_up();
 	  clear = 1;			/* set flag to clear on next entry */
+	  push = 0;
 	  break;
 	case S_SWAP:			/* X/Y */
 	  r_temp = r_x;

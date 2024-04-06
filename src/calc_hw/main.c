@@ -31,20 +31,22 @@ int main (void)
   sei();			/* enable interrups */
 
   lcd_puts( "Hex calc V0.1");
-  lcd_addr( 40);
+  lcd_addr( 0x40);
   for( uint8_t i=1; i<=8; i++)
     lcd_putc( i);
   
 
-  _delay_ms( 100);
-
-  while( !scan_kb())
-    ;
+  _delay_ms( 1000);
   lcd_cls();
 
   // set some defaults
-  radix = DEF_RADIX;		/* radix */
-  wsize = DEF_SIZE;		/* size */
+  //  radix = DEF_RADIX;		/* radix */
+  //  wsize = DEF_SIZE;		/* size */
+
+  // debug
+  radix = 16;
+  wsize = 16;
+
   sign = 0;			/* unsigned */
   push = 0;
 
