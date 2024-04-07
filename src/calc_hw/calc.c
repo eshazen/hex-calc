@@ -8,8 +8,11 @@
 #include "lcd.h"
 
 // #define STATUS_LINE
+// #define REVERSE_EVERY
+#define INSERT_EVERY
 
 extern char msg[17];
+static char dpy_buff[DPY_MAX];
 
 //
 // format register for display, taking into account
@@ -21,8 +24,7 @@ char *format_for_display( union u_reg r_format) {
   printf("radix: %d  wsize: %d  sign: %d\n", radix, wsize, sign);
 #endif
 
-  static char buff[DPY_MAX];
-  char *rfmt = buff;
+  char *rfmt = dpy_buff;
 
   // ugly nested switch for now
   switch( radix) {
@@ -31,24 +33,25 @@ char *format_for_display( union u_reg r_format) {
   case 2:
     switch( wsize) {
     case 8:
-      sp_bin( buff, 1, r_format.u64);
+      sp_bin( dpy_buff, 1, r_format.u64);
       break;
     case 16:
-      sp_bin( buff, 2, r_format.u64);
+      sp_bin( dpy_buff, 2, r_format.u64);
       break;
     case 32:
-      sp_bin( buff, 4, r_format.u64);
+      sp_bin( dpy_buff, 4, r_format.u64);
       break;
     case 64:
-      sp_bin( buff, 8, r_format.u64);
+      sp_bin( dpy_buff, 8, r_format.u64);
       break;
     default:
       printf("ERROR!  wsize = %d\n", wsize);
     }
 
-    if( wsize > 8)
-      reverse_every( buff, 8);
-
+#ifdef REVERSE_EVERY
+    if( wsize > 8) reverse_every( dpy_buff, 8);
+#endif
+    
     break;
 
   // decimal: format using snprintf, insert commas after
@@ -56,71 +59,72 @@ char *format_for_display( union u_reg r_format) {
     switch( wsize) {
     case 8:
       if( sign)
-	snprintf( buff, sizeof(buff), "%" PRId8, (int8_t)r_format.u8);
+	snprintf( dpy_buff, sizeof(dpy_buff), "%" PRId8, (int8_t)r_format.u8);
       else
-	snprintf( buff, sizeof(buff), "%" PRIu8, r_format.u8);
+	snprintf( dpy_buff, sizeof(dpy_buff), "%" PRIu8, r_format.u8);
       break;
     case 16:
       if( sign)
-	snprintf( buff, sizeof(buff), "%" PRId16, (int16_t)r_format.u16);
+	snprintf( dpy_buff, sizeof(dpy_buff), "%" PRId16, (int16_t)r_format.u16);
       else
-	snprintf( buff, sizeof(buff), "%" PRIu16, r_format.u16);
+	snprintf( dpy_buff, sizeof(dpy_buff), "%" PRIu16, r_format.u16);
       break;
     case 32:
       if( sign)
-	snprintf( buff, sizeof(buff), "%" PRId32, (int32_t)r_format.u32);
+	snprintf( dpy_buff, sizeof(dpy_buff), "%" PRId32, (int32_t)r_format.u32);
       else
-	snprintf( buff, sizeof(buff), "%" PRIu32, r_format.u32);
+	snprintf( dpy_buff, sizeof(dpy_buff), "%" PRIu32, r_format.u32);
       break;
     case 64:
       if( sign)
 #ifdef AVR
 	// NOTE: this needs to be signed
-	snprintf( buff, sizeof(buff), "%s", uint64_to_str( (int64_t)r_format.u64));
+	snprintf( dpy_buff, sizeof(dpy_buff), "%s", uint64_to_str( (int64_t)r_format.u64));
 #else	
-	snprintf( buff, sizeof(buff), "%" PRId64, (int64_t)r_format.u64);
+	snprintf( dpy_buff, sizeof(dpy_buff), "%" PRId64, (int64_t)r_format.u64);
 #endif
       else
 #ifdef AVR
-	snprintf( buff, sizeof(buff), "%s", uint64_to_str( (int64_t)r_format.u64));
+	snprintf( dpy_buff, sizeof(dpy_buff), "%s", uint64_to_str( (int64_t)r_format.u64));
 #else	
-	snprintf( buff, sizeof(buff), "%" PRIu64, r_format.u64);
+	snprintf( dpy_buff, sizeof(dpy_buff), "%" PRIu64, r_format.u64);
 #endif
       break;
-    default:
-      printf("ERROR!  wsize = %d\n", wsize);
     }
     // insert commas
-    rfmt = insert_every( buff, 3, ',');
+    // <ESH> why?
+#ifdef INSERT_EVERY
+    rfmt = insert_every( dpy_buff, 3, ',', sizeof(dpy_buff));
+#endif    
     break;
 
   // hex: insert "." every 4
   case 16:
     switch( wsize) {
     case 8:
-      snprintf( buff, sizeof(buff), "%02" PRIx8, r_format.u8);
+      snprintf( dpy_buff, sizeof(dpy_buff), "%02" PRIx8, r_format.u8);
       break;
     case 16:
-      snprintf( buff, sizeof(buff), "%04" PRIx16, r_format.u16);
+      snprintf( dpy_buff, sizeof(dpy_buff), "%04" PRIx16, r_format.u16);
       break;
     case 32:
-      snprintf( buff, sizeof(buff), "%08" PRIx32, r_format.u32);
+      snprintf( dpy_buff, sizeof(dpy_buff), "%08" PRIx32, r_format.u32);
       break;
     case 64:
 #ifdef AVR
-      snprintf( buff, sizeof(buff), "%08" PRIx32 "%08" PRIx32,
+      snprintf( dpy_buff, sizeof(dpy_buff), "%08" PRIx32 "%08" PRIx32,
 		(uint32_t)(r_format.u64 >> 32LL), (uint32_t)(r_format.u64 & 0xffffffffLL));
 #else      
-      snprintf( buff, sizeof(buff), "%016" PRIx64, r_format.u64);
+      snprintf( dpy_buff, sizeof(dpy_buff), "%016" PRIx64, r_format.u64);
 #endif
       break;
     default:
       printf("ERROR!  wsize = %d\n", wsize);
     }
-    if( wsize < 64)
-      reverse_every( buff, 4);
+#ifdef REVERSE_EVERY
+    if( wsize < 64)      reverse_every( dpy_buff, 4);
+#endif
     break;
-
 
   default:
     break;
@@ -130,84 +134,90 @@ char *format_for_display( union u_reg r_format) {
   return rfmt;
 }
 
+//
+// display at LCD position posn, optional single-character label, register reg
+// max width is maxc.  If > width, wrap to next line
+//
+void display_at( int posn, char label, union u_reg reg, uint8_t maxc) {
+  char *fmt = format_for_display( reg);
+  lcd_addr( posn);
+  if( label) {
+    snprintf( msg, maxc, "%c:%s", label, fmt);
+  } else {
+    if( maxc <= LCD_WID)	/* width <= display width */
+      snprintf( msg, maxc, "%s", fmt);
+    else {			/* width exceeds display width, just assume it's 32 */
+      snprintf( msg, LCD_WID, "%s", fmt);
+      if( strlen( fmt) > LCD_WID) {
+	lcd_puts( msg);
+	lcd_addr( LCD_LINE2);
+	snprintf( msg, LCD_WID, "%s", fmt+LCD_WID);
+      }
+    }
+  }
+  lcd_puts( msg);
+}
 
 // update display from r_display
 // use radix, wsize, sign
 void calc_update_display() {
-  char *fmt;
   lcd_cls();
 
   // various formats based on size / base
   switch( radix) {
-  case 16:
+  case 16:			/* ------ HEX display ------ */
 
     switch( wsize) {
     case 8:
     case 16:
       // display X/Y/Z/T
-      fmt = format_for_display( r_t);
-      snprintf( msg, sizeof(msg), "T:%s", fmt);
-      lcd_puts( msg);
-
-      fmt = format_for_display( r_z);
-      snprintf( msg, sizeof(msg), "Z:%s", fmt);
-      lcd_addr( 8);
-      lcd_puts( msg);
-
-      fmt = format_for_display( r_y);
-      lcd_addr( 0x40);
-      snprintf( msg, sizeof(msg), "Y:%s", fmt);
-      lcd_puts( msg);
-
-      fmt = format_for_display( r_x);
-      lcd_addr( 0x48);
-      snprintf( msg, sizeof(msg), "X:%s", fmt);
-      lcd_puts( msg);
+      display_at( 0, 'T', r_t, 8);
+      display_at( 8, 'Z', r_z, 8);
+      display_at( LCD_LINE2, 'Y', r_y, 8);
+      display_at( LCD_LINE2+8, 'X', r_x, 8);
       break;
-
+      
     case 32:
-      fmt = format_for_display( r_y);
-      lcd_puts( fmt);
-      lcd_addr( 0x40);
-      fmt = format_for_display( r_x);
-      lcd_puts( fmt);
+      display_at( 0, 'Y', r_y, LCD_WID);
+      display_at( LCD_LINE2, 'X', r_x, LCD_WID);
       break;
 
     case 64:
-      fmt = format_for_display( r_x);
-      snprintf( msg, sizeof(msg), "%16s", fmt);
-      lcd_puts( msg);
-      // wrap to bottom line
-      snprintf( msg, sizeof(msg), "%s", fmt+16);
-      lcd_addr(0x40);
-      lcd_puts( msg);
+      display_at( 0, '\0', r_x, LCD_WID);
+      display_at( LCD_LINE2, '\0', r_y, LCD_WID);
       break;
     }
     break;
     
-    default:
-      
-      // X on top line
-      fmt = format_for_display( r_x);
-      if( strlen( fmt) < 16) {
-	snprintf( msg, sizeof(msg), "%s", fmt);
-	lcd_puts( msg);
-      } else {
-	snprintf( msg, sizeof(msg), "%16s", fmt);
-	lcd_puts( msg);
-	// wrap to bottom line
-	snprintf( msg, sizeof(msg), "%s", fmt+16);
-	lcd_addr(0x40);
-	lcd_puts( msg);
-      }
-      // status on bottom line
-#ifdef STATUS_LINE
-      lcd_addr( 0x40);
-      snprintf( msg, sizeof(msg), "%d %d", radix, wsize);
-      lcd_puts( msg);
-#endif
+  case 10:			/* ------ DEC display ------ */
+    //    snprintf( msg, LCD_WID, "Dec: %s", format_for_display( r_x));
+    //    lcd_puts( msg);
+    display_at( 0, 'Y', r_y, LCD_WID);
+    display_at( LCD_LINE2, 'X', r_x, LCD_WID);
+    break;
+    
+  case 2:			/* ------ BIN display ------ */
+    switch( wsize) {
+    case 8:
+      display_at( 0, 'Y', r_y, LCD_WID);
+      display_at( LCD_LINE2, 'X', r_x, LCD_WID);
+      break;
+
+    case 16:
+      display_at( 0, '\0', r_y, LCD_WID);
+      display_at( LCD_LINE2, '\0', r_x, LCD_WID);
+      break;
+
+    case 32:
+      display_at( 0, '\0', r_x, LCD_WID*2);      
+      break;
+
+    case 64:
+      lcd_puts("too big");
+      break;
+
+    }
   }
-  
 }
 
 
@@ -353,6 +363,7 @@ uint64_t mask_bits( uint64_t v, int siz) {
 }
 
 
+#ifdef REVERSE_EVERY
 // invert (reverse) characters every n characters
 // char codes 1-8 are 01ABCDEF
 void reverse_every( char *str, int n) {
@@ -367,68 +378,26 @@ void reverse_every( char *str, int n) {
     *str++ = c;
   }
 }
+#endif
 
+#ifdef INSERT_EVERY
 // start at end of string, insert c every n characters
-// return pointer to static (modified) copy
-// only insert after digits
-char *insert_every( char *str, int n, char c) {
-
-#ifdef DEBUG
-  printf("insert_every( \"%s\", %d, '%c')\n",
-	 str, n, c);
-#endif
-  
-  static char buff[DPY_MAX];
-  char *dp = buff;		/* destination pointer */
-  char *sp = &str[strlen(str)-1]; /* source pointer, last char of input string */
-  char lastc;
-
-  if( strlen(str) < n)		/* protect against short string */
-    return str;
-
-  for( size_t i=0; i<strlen(str); i++) {
-    if( i > 0 && !(i % n) && isxdigit(*sp)) {
-#ifdef DEBUG
-      printf("Inserting %c before %c\n", c, *sp);
-#endif
-      *dp++ = c;
+// modify in place but don't exceed buffer size maxc
+char *insert_every( char *str, int n, char c, int maxc) {
+  int rl = strlen( str);	/* keep track of result length */
+  int cp;
+  if( rl > 3) {
+    cp = rl-3;
+    while( cp > 0 && rl < (maxc-1)) {
+      memmove( str+cp+1, str+cp, rl-cp+1);
+      str[cp] = c;
+      cp -= 3;
+      rl++;
     }
-    lastc = *dp++ = *sp--;
   }
-  *dp++ = '\0';
-#ifdef DEBUG
-  printf("insert_every first result = \"%s\"\n", buff);
-#endif
-  str_rev( buff);
-  return buff;
+  return str;
 }
-
-// swap two chars in place
-void swap_char( char *cx, char *cy) {
-  *cx = *cx ^ *cy;
-  *cy = *cx ^ *cy;
-  *cx = *cx ^ *cy;
-}
-
-// reverse a string in place
-void str_rev( char *s) {
-  int n = strlen(s);
-
-#ifdef DEBUG
-  printf("str_rev( \"%s\")\n", s);
-#endif
-  if( !n) return;			/* protect against empty strings */
-  if( n < 4)
-    swap_char( &s[0], &s[n-1]);
-  else {
-    for( int i=0; i<n/2; i++)
-      swap_char(&s[i], &s[n-i-1]);
-  }
-#ifdef DEBUG
-  printf("str_rev( \"%s\")\n", s);
-#endif
-}
-  
+#endif  
 
 
 //

@@ -4,6 +4,9 @@ Calculator firmware to run on real hardware
 
 ## Bugs / Missing Features
 
+Decimal display not working.  Traced to "insert_every()" function which makes a mess.
+
+
 * Occasional key bounce
 * Turn off cursor
 * Keyboard:
@@ -11,6 +14,8 @@ Calculator firmware to run on real hardware
   * 8 bit mode inaccessible (shifted CLx)
   * no way to cancel f prefix (just push f again)
 * Display:
+  * Decimal doesn't really work
+  * 8-bit mode clears X ?
   * 8,16,32-bit decimal can use both lines for X/Y with label
   * 64-bit hex can use both lines for X/Y (no label)
   * 64-bit binary needs shift/toggle

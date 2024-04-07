@@ -17,6 +17,10 @@
 
 #define LED_DEBUG
 
+#define DEBOUNCE_DELAY 20
+
+static uint8_t bouncy;
+
 #include "led.h"
 #include "kb.h"
 
@@ -104,6 +108,11 @@ void poll_kb() {
 // zero if no hits, else an integer code
 uint8_t scan_kb() {
 
+  if( bouncy > 0) {
+    --bouncy;
+    return 0;
+  }
+
   // local variables static to simplify
   static uint8_t kb_v;
   static uint8_t kb_d;
@@ -129,5 +138,7 @@ uint8_t scan_kb() {
     }
     kb_val[c] = kb_v;		/* remember last value for column */
   }
+
+  bouncy = DEBOUNCE_DELAY;
   return kb_rc;
 }

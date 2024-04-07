@@ -54,8 +54,8 @@ int main (void)
 
     uint32_t ms = get_millis();
 
-    // poll KB every 8 ms
-    if( !(ms & 7)) {
+    // poll KB every 1 ms
+    //    if( !(ms & 7)) {
       poll_kb();
       
       // check/update display every 256 ms
@@ -73,7 +73,7 @@ int main (void)
       } // 255 ms
 
 
-    }
+      //    }
 
   }
 
