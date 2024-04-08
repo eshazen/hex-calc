@@ -11,8 +11,8 @@
 // stack size (match form!)
 #define STACK_SIZE 4
 
-#define DEF_RADIX 10
-#define DEF_SIZE 32
+#define DEF_RADIX 16
+#define DEF_SIZE 16
 
 // mode callback args
 #define M_SIG 0
@@ -51,7 +51,6 @@ union u_reg {
 #endif
 
 // global variables
-
 alloc union u_reg r_stack[STACK_SIZE]; /* data stack */
 alloc union u_reg r_temp;	       /* temporary reg */
 alloc int radix;		       /* current radix */

@@ -11,7 +11,7 @@
 // #define REVERSE_EVERY
 #define INSERT_EVERY
 
-extern char msg[17];
+extern char msg[LCD_WID+2];
 static char dpy_buff[DPY_MAX];
 
 //
@@ -20,10 +20,6 @@ static char dpy_buff[DPY_MAX];
 //
 char *format_for_display( union u_reg r_format) {
   
-#ifdef DEBUG
-  printf("radix: %d  wsize: %d  sign: %d\n", radix, wsize, sign);
-#endif
-
   char *rfmt = dpy_buff;
 
   // ugly nested switch for now
@@ -44,8 +40,6 @@ char *format_for_display( union u_reg r_format) {
     case 64:
       sp_bin( dpy_buff, 8, r_format.u64);
       break;
-    default:
-      printf("ERROR!  wsize = %d\n", wsize);
     }
 
 #ifdef REVERSE_EVERY
@@ -142,16 +136,16 @@ void display_at( int posn, char label, union u_reg reg, uint8_t maxc) {
   char *fmt = format_for_display( reg);
   lcd_addr( posn);
   if( label) {
-    snprintf( msg, maxc, "%c:%s", label, fmt);
+    snprintf( msg, maxc+1, "%c:%s", label, fmt);
   } else {
     if( maxc <= LCD_WID)	/* width <= display width */
-      snprintf( msg, maxc, "%s", fmt);
+      snprintf( msg, maxc+1, "%s", fmt);
     else {			/* width exceeds display width, just assume it's 32 */
-      snprintf( msg, LCD_WID, "%s", fmt);
+      snprintf( msg, LCD_WID+1, "%s", fmt);
       if( strlen( fmt) > LCD_WID) {
 	lcd_puts( msg);
 	lcd_addr( LCD_LINE2);
-	snprintf( msg, LCD_WID, "%s", fmt+LCD_WID);
+	snprintf( msg, LCD_WID+1, "%s", fmt+LCD_WID);
       }
     }
   }
@@ -240,8 +234,6 @@ void sp_bin( char *s, int nb, uint64_t v) {
     // extract byte to print
     b = (v >> 8*(nb-i-1LL));
     p = sp_byt( p, b);
-    //    if( i != nb-1)
-    //      *p++ = '.';
   }
   *p++ = '\0';
 }
@@ -288,28 +280,20 @@ void set_new_word_size( int size_code)
   case M_8:
     new_size = 8;
     break;
-  default:
-    printf("ERROR!  size code: %d should be between %d and %d (inclusive)\n",
-	   size_code, M_64, M_8);
   }
 
-#ifdef DEBUG  
-  printf("Set word size (old=%d new=%d)\n", old_size, new_size);
-#endif  
   wsize = new_size;
 
   // sign-extend all stack regs to 64 bits if word size larger
   if( (new_size > old_size) && sign) {
     for( int i=0; i<STACK_SIZE; i++)
       r_stack[i].u64 = sign_extend( r_stack[i].u64, old_size);
-  }
-
-  // mask high bits if word size smaller
-  if( new_size < old_size) {
+    // mask high bits if word size smaller
+  } else if( new_size < old_size) {
     for( int i=0; i<STACK_SIZE; i++)
       r_stack[i].u64 = mask_bits( r_stack[i].u64, new_size);
   }
-
+  // ... no action if the same
   old_size = wsize;
 }
 
@@ -318,16 +302,10 @@ void set_new_word_size( int size_code)
 //
 uint64_t sign_extend( uint64_t v, int siz) {
 
-#ifdef DEBUG
-  printf("Sign extend 0x%" PRIx64 " from %d bits\n", v, siz);
-#endif
   int64_t r = v;
   
   if( siz < 64) {
     for( int i=siz; i<64; i++) {
-#ifdef DEBUG
-      printf(" bit %d test: %d\n", i, (v & (1LL << (siz-1))) != 0);
-#endif
       if( v & (1LL << (siz-1)))
 	r |= 1LL << i;
     }
@@ -354,8 +332,6 @@ uint64_t mask_bits( uint64_t v, int siz) {
     break;
   case 8:
     r &= 0xff;
-    break;
-  default:
     break;
   }
 
@@ -409,10 +385,6 @@ uint64_t delete_high_digit( uint64_t v, int radix)
   uint64_t t = v;
   uint64_t s = 1;
 
-#ifdef DEBUG
-  printf("delete_high_digit( %" PRIu64 " (0x%" PRIx64 "), %d\n", v, v, radix);
-#endif  
-
   if( v < (uint64_t)radix)
     return 0;
 
@@ -423,11 +395,6 @@ uint64_t delete_high_digit( uint64_t v, int radix)
     s *= radix;
   }
   v -= (s*t);
-
-#ifdef DEBUG
-  printf("  result: %" PRIu64 "( 0x%" PRIx64 ") nd=%d\n", v, v, nd);
-#endif  
-
   return v;
 }
 

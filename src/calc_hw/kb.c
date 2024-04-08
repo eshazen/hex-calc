@@ -17,7 +17,7 @@
 
 #define LED_DEBUG
 
-#define DEBOUNCE_DELAY 20
+#define DEBOUNCE_DELAY 10
 
 static uint8_t bouncy;
 
@@ -131,7 +131,6 @@ uint8_t scan_kb() {
       for( uint8_t b=1; b<0x80; b<<=1) { /* see which bit changed */
 	if( (kb_d & b) && (kb_v & b)) {	 /* only press, no release */
 	  kb_rc = (c << 4) | kb_code;
-	  //	  kb_test_hit = (c << 4) | kb_code;
 	}
 	++kb_code;
       }

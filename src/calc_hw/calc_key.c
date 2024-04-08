@@ -1,19 +1,16 @@
 //
 // perform action on key press
 //
-// keyboard mapping table
-
-// #define DEBUG
-
 #include <stdio.h>
 #include <ctype.h>
 #include <stdint.h>
+#include <util/delay.h>
 #include "calc.h"
 #include "lcd.h"
 
-// #define STATUS_KEY
+// #define DEBUG_KEY
 
-extern char msg[17];
+extern char msg[LCD_WID+2];
 
 typedef struct {
   uint8_t key;
@@ -43,46 +40,46 @@ uint8_t calc_xdigit( uint8_t k) {
 
 enum { KG_MODE, KG_ARITH, KG_STACK};
 
+// keyboard mapping table
 static a_key keys[] = {
   // real hardware, first value is key code with high bit set for shifted
-  { 0xb2, KG_MODE, M_SIG },	/* toggle SIGNED display */
-  { 0x01, KG_MODE, M_HEX },	/* set HEX mode */
-  { 0x21, KG_MODE, M_DEC },	/* set DEC mode */
-  { 0x11, KG_MODE, M_BIN },	/* set BIN mode (base Ten) */
-  { 0x81, KG_MODE, M_64 },	/* set 64-bit word size (Octobyte) */
-  { 0x91, KG_MODE, M_32 },	/* set 32-bit word size (Quad byte) */
-  { 0xa1, KG_MODE, M_16 },	/* set 16-bit word size (Word) */
-  { 0x82, KG_MODE, M_8 },	/* set 8-bit word size (Byte) */
+  { 0xb2, KG_MODE, M_SIG },	/* 00: toggle SIGNED display */
+  { 0x01, KG_MODE, M_HEX },	/* 01: set HEX mode */
+  { 0x21, KG_MODE, M_DEC },	/* 02: set DEC mode */
+  { 0x11, KG_MODE, M_BIN },	/* 03: set BIN mode (base Ten) */
+  { 0x81, KG_MODE, M_64 },	/* 04: set 64-bit word size (Octobyte) */
+  { 0x91, KG_MODE, M_32 },	/* 05: set 32-bit word size (Quad byte) */
+  { 0xa1, KG_MODE, M_16 },	/* 06: set 16-bit word size (Word) */
+  { 0x82, KG_MODE, M_8 },	/* 07: set 8-bit word size (Byte) */
 
-  { 0x02, KG_ARITH, A_CLR },	/* Clear x */
-  { 0x04, KG_ARITH, A_SUB },	/* subtract */
-  { 0x05, KG_ARITH, A_ADD },	/* add */
-  { 0x06, KG_ARITH, A_MUL },	/* multiply */
-  { 0x07, KG_ARITH, A_DIV },	/* divide */
-  { 0x03, KG_ARITH, A_CHS },	/* change sign*/
+  { 0x02, KG_ARITH, A_CLR },	/* 08: Clear x */
+  { 0x04, KG_ARITH, A_SUB },	/* 09: subtract */
+  { 0x05, KG_ARITH, A_ADD },	/* 10: add */
+  { 0x06, KG_ARITH, A_MUL },	/* 11: multiply */
+  { 0x07, KG_ARITH, A_DIV },	/* 12: divide */
+  { 0x03, KG_ARITH, A_CHS },	/* 13: change sign*/
 
-  { 0x92, KG_STACK, S_DROP },	/* roll down */
-  { 0xa2, KG_STACK, S_SWAP },	/* swap x, y */
-  { 0x27, KG_STACK, S_PUSH },	/* push (Enter) */
+  { 0x92, KG_STACK, S_DROP },	/* 14: roll down */
+  { 0xa2, KG_STACK, S_SWAP },	/* 15: swap x, y */
+  { 0x27, KG_STACK, S_PUSH },	/* 16: push (Enter) */
 };
 
 void calc_key( uint8_t k) {
 
-#ifdef DEBUG
-  printf("calc_key( 0x%x)\n", k);
-#endif  
-
-  if(k == 0x31)
+  if(k == 0x31) {
     shift = !shift;
+    return;
+  }
+
+  // if shift, set high bit on k
+  if( shift)
+    k |= 0x80;
 
   // un-shifted digit
-  if( !shift && calc_xdigit( k)) {
+  if( calc_xdigit( k)) {
     shift = 0;			/* digit cancels shift */
-
     k = calc_xdigit( k);
-
     int data;
-
     if( isdigit(k))
       data = k - '0';
     else
@@ -113,28 +110,17 @@ void calc_key( uint8_t k) {
 	// what we want to do here is to see if we add the digit
 	// it results in an overflow, and if so strip off the
 	// highest non-zero digit so the value scrolls to the left
-
-#ifdef DEBUGX
-	printf("Enter digit %d with X=%" PRIu64 "\n", data, r_x.u64);
-#endif      
-
 	uint64_t b = r_x.u64 * radix;
 	uint64_t r = b + data;
       
 	if( sign) {
 	  while( r > MAX_SIGNED(wsize)) {
-#ifdef DEBUGX
-	    printf("signed compare %" PRIu64 " with %" PRIu64 "\n", r, MAX_SIGNED(wsize));
-#endif	    
 	    b = delete_high_digit( b, radix);
 	    r = b + data;
 	  }
 	} else {
 	  // unsigned
 	  while( r > MAX_UNSIGNED(wsize)) {
-#ifdef DEBUGX
-	    printf("unsigned compare %" PRIu64 " with %" PRIu64 "\n", r, MAX_UNSIGNED(wsize));
-#endif	    
 	    b = delete_high_digit( b, radix);
 	    r = b + data;
 	  }
@@ -145,107 +131,102 @@ void calc_key( uint8_t k) {
 
     calc_update_display();
 
-  } // if( !shift && calc_xdigit())
+  } else {			/* not a digit, try to look up */
 
-  for( int i=0; i<sizeof(keys)/sizeof(keys[0]); i++) {
-    if( shift ? (keys[i].key == (k | 0x80)) : (keys[i].key == k)) {
+    for( int i=0; i<sizeof(keys)/sizeof(keys[0]); i++) {
+      if( keys[i].key == k) {
 
-      shift = 0;
-
-#ifdef STATUS_KEY
-      lcd_addr( 40);
-      snprintf( msg, sizeof(msg), "key %d %02x %02x", i, k, keys[i].key);
-      lcd_puts( msg);
+#ifdef DEBUG_KEY
+	// display key code
+	lcd_addr( 0);
+	snprintf( msg, sizeof(msg), "key: %c (%02x) %d ", shift ? 'S' : 'N', k, i);
+	lcd_puts( msg);
+	_delay_ms(500);
 #endif
+	shift = 0;
 
-#ifdef DEBUG
-      printf("  match group=%d code=%d\n", keys[i].action_group, keys[i].action_code);
-#endif      
-
-      switch( keys[i].action_group) {
-      case KG_MODE:
-	push = 1;
-
-	switch( keys[i].action_code) {
-	  // toggle signed mode
-	case M_SIG:
-	  sign = !sign;
+	switch( keys[i].action_group) {
+	case KG_MODE:
+	  push = 1;
+	  switch( keys[i].action_code) {
+	    // toggle signed mode
+	  case M_SIG:
+	    sign = !sign;
+	    break;
+	    // set the radix
+	  case M_HEX:
+	    radix = 16;
+	    break;
+	  case M_DEC:
+	    radix = 10;
+	    break;
+	  case M_BIN:
+	    radix = 2;
+	    break;
+	    // change word size, deal with sign extend etc
+	    // operate on entire stack
+	  case M_64:
+	  case M_32:
+	  case M_16:
+	  case M_8:
+	    set_new_word_size( keys[i].action_code);
+	    break;
+	  }
 	  break;
 
-	  // set the radix
-	case M_HEX:
-	  radix = 16;
+	case KG_ARITH:
+
+	  push = 1;
+
+	  switch( keys[i].action_code) {
+	  case A_CHS:
+	    r_x.u64 = -((int64_t)r_x.u64);
+	    break;
+	  case A_CLR:
+	    r_x.u64 = 0;
+	    push = 0;
+	    break;
+	  case A_SUB:
+	    r_y.u64 -= r_x.u64;
+	    stack_down_copy();
+	    break;
+	  case A_ADD:
+	    r_y.u64 += r_x.u64;
+	    stack_down_copy();
+	    break;
+	  case A_MUL:
+	    r_y.u64 *= r_x.u64;
+	    stack_down_copy();
+	    break;
+	  case A_DIV:
+	    r_y.u64 /= r_x.u64;
+	    stack_down_copy();
+	    break;
+	  }
 	  break;
-	case M_DEC:
-	  radix = 10;
-	  break;
-	case M_BIN:
-	  radix = 2;
-	  break;
-	  // change word size, deal with sign extend etc
-	  // operate on entire stack
-	case M_64:
-	case M_32:
-	case M_16:
-	case M_8:
-	  set_new_word_size( keys[i].action_code);
+
+	case KG_STACK:
+	  push = 1;
+	  switch( keys[i].action_code) {
+	  case S_DROP:			/* roll-down */
+	    stack_down();
+	    break;
+	  case S_PUSH:			/* ENTER */
+	    stack_up();
+	    clear = 1;			/* set flag to clear on next entry */
+	    push = 0;
+	    break;
+	  case S_SWAP:			/* X/Y */
+	    r_temp = r_x;
+	    r_x = r_y;
+	    r_y = r_temp;
+	    break;
+	  }
 	  break;
 	}
-	break;
-
-      case KG_ARITH:
-
-	push = 1;
-
-	switch( keys[i].action_code) {
-	case A_CHS:
-	  r_x.u64 = -((int64_t)r_x.u64);
-	  break;
-	case A_CLR:
-	  r_x.u64 = 0;
-	  push = 0;
-	  break;
-	case A_SUB:
-	  r_y.u64 -= r_x.u64;
-	  stack_down_copy();
-	  break;
-	case A_ADD:
-	  r_y.u64 += r_x.u64;
-	  stack_down_copy();
-	  break;
-	case A_MUL:
-	  r_y.u64 *= r_x.u64;
-	  stack_down_copy();
-	  break;
-	case A_DIV:
-	  r_y.u64 /= r_x.u64;
-	  stack_down_copy();
-	  break;
-	}
-	break;
-
-      case KG_STACK:
-	push = 1;
-	switch( keys[i].action_code) {
-	case S_DROP:			/* roll-down */
-	  stack_down();
-	  break;
-	case S_PUSH:			/* ENTER */
-	  stack_up();
-	  clear = 1;			/* set flag to clear on next entry */
-	  push = 0;
-	  break;
-	case S_SWAP:			/* X/Y */
-	  r_temp = r_x;
-	  r_x = r_y;
-	  r_y = r_temp;
-	  break;
-	}
-	break;
-      }
-      calc_update_display();
-    }
-  }
-
+	calc_update_display();
+      } // if key match
+    } // for( i=... lookup key
+  } // else not digit
 
 }

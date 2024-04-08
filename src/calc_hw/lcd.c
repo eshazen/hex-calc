@@ -37,8 +37,8 @@ void lcd_init( void)
   send_ctrl(0b0010);   //Function set, 4 bit
   send_ctrl(0b1000);
  
-  send_ctrl(0b0000);   //Display ON, Cursor On, Cursor Blinking
-  send_ctrl(0b1111);
+  send_ctrl(0b0000);   //Display ON, Cursor Off
+  send_ctrl(0b1100);
 
   send_ctrl(0b0000);   //Clear Display
   send_ctrl(0b0001);

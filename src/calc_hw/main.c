@@ -14,8 +14,10 @@
 #include "calc_key.h"
 #include "custom.h"
 
+// #define DEBUG_KEY
+
 // universal LCD display buffer
-char msg[17];
+char msg[LCD_WID+2];
 
 extern uint8_t kb_val[];
 
@@ -30,7 +32,7 @@ int main (void)
   timer_setup();
   sei();			/* enable interrups */
 
-  lcd_puts( "Hex calc V0.1");
+  lcd_puts( "Hex calc V0.2");
   lcd_addr( 0x40);
   for( uint8_t i=1; i<=8; i++)
     lcd_putc( i);
@@ -40,12 +42,8 @@ int main (void)
   lcd_cls();
 
   // set some defaults
-  //  radix = DEF_RADIX;		/* radix */
-  //  wsize = DEF_SIZE;		/* size */
-
-  // debug
-  radix = 16;
-  wsize = 16;
+  radix = DEF_RADIX;		/* radix */
+  wsize = DEF_SIZE;		/* size */
 
   sign = 0;			/* unsigned */
   push = 0;
@@ -55,25 +53,29 @@ int main (void)
     uint32_t ms = get_millis();
 
     // poll KB every 1 ms
-    //    if( !(ms & 7)) {
-      poll_kb();
+    poll_kb();
       
-      // check/update display every 256 ms
-      if( !(ms & 255)) {
+    // check/update display every 256 ms
+    if( !(ms & 255)) {
 
-	int k = get_kb();
-	if( k) {
-	  calc_key( k);
-	} // if(k)
+      int k = get_kb();
+
+      if( k) {
+#ifdef DEBUG_KEY
+      // display key code
+      lcd_addr( 0);
+      snprintf( msg, sizeof(msg), "key: %c (%02x) ", shift ? 'S' : 'N', k);
+      lcd_puts( msg);
+      _delay_ms(500);
+#endif
+	calc_key( k);
+      } // if(k)
 
 	// set LEDs
-	set_led( 0, shift);
-	set_led( 1, sign);
+      set_led( 0, shift);
+      set_led( 1, sign);
 
-      } // 255 ms
-
-
-      //    }
+    } // 255 ms
 
   }
 
