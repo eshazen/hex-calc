@@ -2,7 +2,8 @@
 
 Simple Hex/Binary/Decimal calculator inspired by HP-16C and TI Programmer.
 
-![front view](pix/front.jpg)
+![front view](pix/front_sm.jpg)
+[large image](pix/front.jpg)
 
 Features:
 
