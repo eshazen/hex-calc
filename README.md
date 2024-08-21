@@ -27,3 +27,18 @@ KiCAD design in <tt>keyboard-pcb</tt>.
 See https://github.com/eshazen/calc-demo-xwin for an X-windows
 app written in C which illustrates the general idea.
 
+## Enhancements
+
+Thinking about some added features to support fractional arithmetic
+for woodworking.  Display options to round to nearest fraction (1/4,
+1/8, 1/16, 1/32, 1/64) and switch between decimal inch, fraction inch
+and decimal mm.  Ft/inches another useful display option.
+
+This would involve either floating point or scaled integer math.
+For this application the range is pretty limited, maybe 8 ft (~100 in)
+max.
+
+Base units could be 2.54e-6 in (1um).  100 inches would require ~25
+bits.  
+
+
