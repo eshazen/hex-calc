@@ -14,3 +14,5 @@ Since the main point is something functional, it would use
 a modern micrcocontroller with good C support.
 
 ![keyboard layout](pix/hex-calc.png)
+
+This is a test push from windows
