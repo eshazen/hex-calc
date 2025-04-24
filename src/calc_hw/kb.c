@@ -17,7 +17,8 @@
 
 #define LED_DEBUG
 
-#define DEBOUNCE_DELAY 10
+// #define DEBOUNCE_DELAY 10
+#define DEBOUNCE_DELAY 5
 
 static uint8_t bouncy;
 
