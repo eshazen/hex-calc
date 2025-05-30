@@ -1,7 +1,5 @@
 # hex-calc
 
-Testing
-
 Simple Hex/Binary/Decimal calculator inspired by HP-16C and TI Programmer.
 
 ![front view](pix/front_sm.jpg)
