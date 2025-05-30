@@ -25,6 +25,7 @@ Industry-standard 16x2 backlit LCD.  Three LEDs:
 Code in <tt>src/calc_hw</tt>.
 
 KiCAD design in <tt>keyboard-pcb</tt>.
+<br>Schematic:  [keyboard-pcb.pdf](keyboard-pcb/keyboard-pcb.pdf)
 
 See https://github.com/eshazen/calc-demo-xwin for an X-windows
 app written in C which illustrates the general idea.
