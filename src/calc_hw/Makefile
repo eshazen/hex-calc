@@ -22,8 +22,11 @@ FUSEOPT = -U lfuse:w:0xe2:m
 # read fuses
 RFUSEOPT = -U hfuse:r:-:h -U lfuse:r:-:h -U efuse:r:-:h
 
+# USB tiny programmer
+DUDEPORT  = -c usbtiny -P usb
+
 # for AVRISP programmer on USB
-DUDEPORT  = -c avrispv2 -P usb
+# DUDEPORT  = -c avrispv2 -P usb
 
 # for Arduino bootloader
 # DUDEPORT  = -c arduino -P /dev/ttyACM0

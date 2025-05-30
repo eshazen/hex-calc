@@ -1,5 +1,7 @@
 # hex-calc
 
+Testing
+
 Simple Hex/Binary/Decimal calculator inspired by HP-16C and TI Programmer.
 
 ![front view](pix/front_sm.jpg)
@@ -41,4 +43,4 @@ max.
 Base units could be 2.54e-6 in (1um).  100 inches would require ~25
 bits.  
 
-
+![keyboard layout](pix/hex-calc.png)
